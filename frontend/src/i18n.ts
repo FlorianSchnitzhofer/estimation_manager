@@ -1,0 +1,196 @@
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+
+const de = {
+  app: { title: "ReqPOOL Estimation Manager", projects: "Projekte", admin: "Administration" },
+  common: {
+    create: "Anlegen", save: "Speichern", cancel: "Abbrechen", delete: "Löschen",
+    close: "Schließen", loading: "Lädt …", error: "Fehler", reset: "Zurücksetzen",
+    name: "Name", note: "Anmerkung", role: "Rolle", actions: "Aktionen",
+    hours: "Stunden", cost: "Kosten", date: "Datum", version: "Version",
+    saved: "Gespeichert.", search: "Suchen",
+  },
+  projects: {
+    newProject: "Neues Projekt", client: "Auftraggeber", goal: "Projektziel",
+    benefit: "Nutzen", outOfScope: "Out-of-Scope", assumptions: "Annahmen & Rahmenbedingungen",
+    empty: "Noch keine Projekte. Legen Sie das erste an — in unter 5 Minuten zur Schätzung.",
+    sessionCount: "Sessions", myRole: "Meine Rolle", updated: "Geändert",
+    deleteConfirm: "Projekt endgültig löschen? Alle Sessions gehen verloren.",
+  },
+  tabs: {
+    estimation: "Schätzung", sessions: "Scope-Sessions", documents: "Dokumente",
+    sharing: "Freigaben", audit: "Audit-Trail",
+  },
+  estimation: {
+    parameters: "Schätzparameter", results: "Ergebnis",
+    fpTotal: "Function Points", fpUnadjusted: "Unadjusted FP", vaf: "Value Adjustment Factor",
+    vafEnable: "VAF (GSC-Fragenkatalog) anwenden", tdi: "Total Degree of Influence",
+    fpBreakdown: "FP-Breakdown nach Parameter", variantComparison: "Varianten-Vergleich (Aufwand)",
+    phaseCosts: "Kosten pro Projektphase", drilldown: "Drill-Down auf Parameterebene",
+    bandBest: "Best Case", bandExpected: "Expected", bandWorst: "Worst Case",
+    operations: "Betriebsaufwand", consulting: "Beratungsaufwand", perYear: "p.a.",
+    ofImplementation: "vom Umsetzungsaufwand",
+    tokens: "KI-Token-Verbrauch (agentisch)", tokensTotal: "Tokens gesamt",
+    tokenCost: "Token-Kosten", tokenAssumption: "Annahme",
+    saveParams: "Parameter speichern", createSnapshot: "Als Session einfrieren",
+    ifpugTable: "IFPUG-Aufstellung", weight: "Gewicht", counted: "Gezählt",
+    complexity: "Komplexität", perHour: "h/FP", assumptionsTitle: "Annahmen (transparent)",
+    phase: "Phase", parameter: "Parameter", variant: "Variante", table: "Tabelle",
+    readOnly: "Nur-Lesen-Zugriff — Änderungen sind deaktiviert.",
+  },
+  sessions: {
+    title: "Scope Planning Sessions",
+    empty: "Noch keine Sessions. Frieren Sie den aktuellen Scope als Baseline ein.",
+    create: "Neue Session", baseline: "Baseline", burnup: "Scope-Verlauf (FP Burn-Up)",
+    waterfall: "Delta-Wasserfall (FP nach Parameter)", history: "Verlauf je Parameter",
+    compareTitle: "Baseline-Vergleich", from: "Von", to: "Bis",
+    fpDelta: "FP-Delta", costDelta: "Kosten-Delta", frozen: "Eingefrorene Konfiguration",
+    deleteConfirm: "Session löschen?", needTwo: "Für den Vergleich sind mindestens zwei Sessions nötig.",
+    total: "Netto-Delta",
+  },
+  documents: {
+    title: "Generierte Artefakte",
+    scopeDoc: "Scope-Dokument (Projektcharta)",
+    scopeDesc: "10 fixe Abschnitte: Projekt, Ziel, Scope-Parameter, IFPUG-Tabelle, Aufwand & Kosten, Betrieb & Beratung, Annahmen, Out-of-Scope, Historie, Freigabe.",
+    spec: "Specification as Code",
+    specDesc: "YAML-Spezifikation für einen agentischen Entwicklungslauf mit Claude Code: screens, use_cases (Given/When/Then), business_objects, interfaces, batches, roles, non_functional.",
+    download: "Herunterladen",
+  },
+  sharing: {
+    title: "Projekt teilen", email: "E-Mail-Adresse", add: "Hinzufügen",
+    owner: "Owner", editor: "Editor", viewer: "Viewer",
+    removeConfirm: "Mitglied entfernen?",
+  },
+  audit: { title: "Audit-Trail", action: "Aktion", user: "Benutzer", details: "Details", when: "Zeitpunkt" },
+  admin: {
+    title: "Administration", productivity: "Produktivität (h/FP)",
+    classic: "Klassisch (industriell)", agile: "Agil", agentic: "Agentisch (KI)",
+    rates: "Kostensätze", blendedRate: "Blended Rate (EUR/h)",
+    phases: "Phasenverteilung (%)", phaseSum: "Summe", phaseSumError: "Die Summe muss 100 % ergeben.",
+    opsConsulting: "Betrieb & Beratung",
+    operationsPct: "Betriebsaufwand (% p.a. vom Umsetzungsaufwand)",
+    consultingPct: "Beratungsaufwand (% vom Umsetzungsaufwand)",
+    tokens: "KI-Token-Modell", tokensPerFp: "Tokens pro FP",
+    tokenPrice: "Token-Preis (EUR pro 1 Mio., blended In/Out)",
+    complexityTitle: "IFPUG-Komplexitätsgewichtung",
+    complexityLow: "niedrig", complexityAverage: "mittel", complexityHigh: "hoch",
+    preview: "Live-Vorschau", previewHint: "Beispielprojekt — Änderungen an den Reglern wirken sofort.",
+    savedNote: "Änderungen wirken auf neue Berechnungen; bestehende Sessions bleiben eingefroren.",
+    notAdmin: "Für diesen Bereich ist die Admin-Rolle erforderlich.",
+    saveConfig: "Konfiguration speichern", resetConfig: "Auf Defaults zurücksetzen",
+  },
+  params: {
+    screens: "Masken", use_cases: "Anwendungsfälle", business_objects: "Geschäftsobjekte",
+    interfaces: "Schnittstellen", batches: "Zeitgesteuerte Abläufe",
+    languages: "Sprachen", roles: "Rollen",
+  },
+  phases: {
+    analysis: "Analyse", design: "Konzeption", implementation: "Umsetzung",
+    test: "Test", rollout: "Rollout",
+  },
+  variants: { classic: "Klassisch", agile: "Agil", agentic: "Agentisch" },
+};
+
+const en = {
+  app: { title: "ReqPOOL Estimation Manager", projects: "Projects", admin: "Administration" },
+  common: {
+    create: "Create", save: "Save", cancel: "Cancel", delete: "Delete",
+    close: "Close", loading: "Loading …", error: "Error", reset: "Reset",
+    name: "Name", note: "Note", role: "Role", actions: "Actions",
+    hours: "Hours", cost: "Cost", date: "Date", version: "Version",
+    saved: "Saved.", search: "Search",
+  },
+  projects: {
+    newProject: "New project", client: "Client", goal: "Project goal",
+    benefit: "Benefit", outOfScope: "Out of scope", assumptions: "Assumptions & constraints",
+    empty: "No projects yet. Create the first one — get an estimate in under 5 minutes.",
+    sessionCount: "Sessions", myRole: "My role", updated: "Updated",
+    deleteConfirm: "Delete this project permanently? All sessions will be lost.",
+  },
+  tabs: {
+    estimation: "Estimation", sessions: "Scope sessions", documents: "Documents",
+    sharing: "Sharing", audit: "Audit trail",
+  },
+  estimation: {
+    parameters: "Estimation parameters", results: "Results",
+    fpTotal: "Function points", fpUnadjusted: "Unadjusted FP", vaf: "Value adjustment factor",
+    vafEnable: "Apply VAF (GSC questionnaire)", tdi: "Total degree of influence",
+    fpBreakdown: "FP breakdown by parameter", variantComparison: "Variant comparison (effort)",
+    phaseCosts: "Cost per project phase", drilldown: "Drill-down to parameter level",
+    bandBest: "Best case", bandExpected: "Expected", bandWorst: "Worst case",
+    operations: "Operations effort", consulting: "Consulting effort", perYear: "p.a.",
+    ofImplementation: "of implementation effort",
+    tokens: "AI token consumption (agentic)", tokensTotal: "Total tokens",
+    tokenCost: "Token cost", tokenAssumption: "Assumption",
+    saveParams: "Save parameters", createSnapshot: "Freeze as session",
+    ifpugTable: "IFPUG breakdown", weight: "Weight", counted: "Counted",
+    complexity: "Complexity", perHour: "h/FP", assumptionsTitle: "Assumptions (transparent)",
+    phase: "Phase", parameter: "Parameter", variant: "Variant", table: "Table",
+    readOnly: "Read-only access — editing is disabled.",
+  },
+  sessions: {
+    title: "Scope planning sessions",
+    empty: "No sessions yet. Freeze the current scope as the baseline.",
+    create: "New session", baseline: "Baseline", burnup: "Scope history (FP burn-up)",
+    waterfall: "Delta waterfall (FP by parameter)", history: "History per parameter",
+    compareTitle: "Baseline comparison", from: "From", to: "To",
+    fpDelta: "FP delta", costDelta: "Cost delta", frozen: "Frozen configuration",
+    deleteConfirm: "Delete session?", needTwo: "At least two sessions are required for a comparison.",
+    total: "Net delta",
+  },
+  documents: {
+    title: "Generated artifacts",
+    scopeDoc: "Scope document (project charter)",
+    scopeDesc: "10 fixed sections: project, goal, scope parameters, IFPUG table, effort & cost, operations & consulting, assumptions, out-of-scope, history, approval.",
+    spec: "Specification as code",
+    specDesc: "YAML specification for an agentic development run with Claude Code: screens, use_cases (Given/When/Then), business_objects, interfaces, batches, roles, non_functional.",
+    download: "Download",
+  },
+  sharing: {
+    title: "Share project", email: "Email address", add: "Add",
+    owner: "Owner", editor: "Editor", viewer: "Viewer",
+    removeConfirm: "Remove member?",
+  },
+  audit: { title: "Audit trail", action: "Action", user: "User", details: "Details", when: "Timestamp" },
+  admin: {
+    title: "Administration", productivity: "Productivity (h/FP)",
+    classic: "Classic (industrial)", agile: "Agile", agentic: "Agentic (AI)",
+    rates: "Rates", blendedRate: "Blended rate (EUR/h)",
+    phases: "Phase distribution (%)", phaseSum: "Total", phaseSumError: "The total must equal 100%.",
+    opsConsulting: "Operations & consulting",
+    operationsPct: "Operations (% p.a. of implementation effort)",
+    consultingPct: "Consulting (% of implementation effort)",
+    tokens: "AI token model", tokensPerFp: "Tokens per FP",
+    tokenPrice: "Token price (EUR per 1M, blended in/out)",
+    complexityTitle: "IFPUG complexity weighting",
+    complexityLow: "low", complexityAverage: "average", complexityHigh: "high",
+    preview: "Live preview", previewHint: "Sample project — slider changes apply immediately.",
+    savedNote: "Changes apply to new calculations; existing sessions stay frozen.",
+    notAdmin: "The Admin role is required for this area.",
+    saveConfig: "Save configuration", resetConfig: "Reset to defaults",
+  },
+  params: {
+    screens: "Screens", use_cases: "Use cases", business_objects: "Business objects",
+    interfaces: "Interfaces", batches: "Scheduled processes",
+    languages: "Languages", roles: "Roles",
+  },
+  phases: {
+    analysis: "Analysis", design: "Design", implementation: "Implementation",
+    test: "Test", rollout: "Rollout",
+  },
+  variants: { classic: "Classic", agile: "Agile", agentic: "Agentic" },
+};
+
+i18n.use(initReactI18next).init({
+  resources: { de: { translation: de }, en: { translation: en } },
+  lng: localStorage.getItem("em_lang") || "de",
+  fallbackLng: "en",
+  interpolation: { escapeValue: false },
+});
+
+export function setLanguage(lang: "de" | "en") {
+  localStorage.setItem("em_lang", lang);
+  i18n.changeLanguage(lang);
+}
+
+export default i18n;

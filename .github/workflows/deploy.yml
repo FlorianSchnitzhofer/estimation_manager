@@ -1,0 +1,92 @@
+name: Build & Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  AZURE_SUBSCRIPTION_ID: f677fc3d-7384-4018-b5c4-204292ecadf6
+  AZURE_RESOURCE_GROUP: bg_estimation_manager
+  AZURE_LOCATION: germanywestcentral
+  ACR_NAME: bgemacrf677
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Backend tests
+        run: |
+          pip install -r backend/requirements.txt
+          cd backend && python -m pytest tests -q
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Frontend build
+        run: |
+          cd frontend
+          npm ci --no-audit --no-fund
+          npm run build
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      # Federated credentials (OIDC) of an Entra service principal with
+      # Contributor on the resource group. Repo secrets: AZURE_CLIENT_ID,
+      # AZURE_TENANT_ID, POSTGRES_ADMIN_PASSWORD; optional ENTRA_TENANT_ID,
+      # ENTRA_CLIENT_ID for end-user sign-in via Entra ID.
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Ensure container registry
+        run: |
+          az acr create -g "$AZURE_RESOURCE_GROUP" -n "$ACR_NAME" \
+            --sku Basic --admin-enabled true -l "$AZURE_LOCATION" -o none
+
+      - name: Build & push images (ACR build)
+        run: |
+          az acr build --registry "$ACR_NAME" --image em-api:${{ github.sha }} backend
+          az acr build --registry "$ACR_NAME" --image em-web:${{ github.sha }} frontend
+
+      - name: Read registry credentials
+        run: |
+          ACR_USER=$(az acr credential show -n "$ACR_NAME" --query username -o tsv)
+          ACR_PASS=$(az acr credential show -n "$ACR_NAME" --query "passwords[0].value" -o tsv)
+          echo "::add-mask::$ACR_PASS"
+          echo "ACR_USER=$ACR_USER" >> "$GITHUB_ENV"
+          echo "ACR_PASS=$ACR_PASS" >> "$GITHUB_ENV"
+
+      - name: Deploy infrastructure + apps (Bicep)
+        run: |
+          az deployment group create \
+            -g "$AZURE_RESOURCE_GROUP" \
+            -f infra/main.bicep \
+            -p apiImage="$ACR_NAME.azurecr.io/em-api:${{ github.sha }}" \
+               webImage="$ACR_NAME.azurecr.io/em-web:${{ github.sha }}" \
+               postgresAdminPassword="${{ secrets.POSTGRES_ADMIN_PASSWORD }}" \
+               entraTenantId="${{ secrets.ENTRA_TENANT_ID }}" \
+               entraClientId="${{ secrets.ENTRA_CLIENT_ID }}" \
+               registryServer="$ACR_NAME.azurecr.io" \
+               registryUsername="$ACR_USER" \
+               registryPassword="$ACR_PASS" \
+            --query "properties.outputs" -o json
+
+      - name: Show app URL
+        run: |
+          az deployment group show -g "$AZURE_RESOURCE_GROUP" -n main \
+            --query "properties.outputs.webUrl.value" -o tsv
