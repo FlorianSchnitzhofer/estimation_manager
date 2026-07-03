@@ -135,6 +135,8 @@ resource apiApp 'Microsoft.App/containerApps@2024-03-01' = {
         external: false
         targetPort: 8000
         transport: 'http'
+        // nginx in the web app proxies via plain http on the internal network.
+        allowInsecure: true
       }
       registries: registryConfig
       secrets: concat(registrySecrets, [

@@ -10,6 +10,9 @@ server {
     # the internal FQDN of the API app.
     location /api/ {
         proxy_pass ${API_UPSTREAM};
+        # Envoy (Container Apps ingress) rejects HTTP/1.0 with 426.
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
         proxy_set_header Host $host;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
