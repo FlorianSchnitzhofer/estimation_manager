@@ -40,9 +40,11 @@ param registryUsername string = ''
 param registryPassword string = ''
 
 var prefix = 'bgem'
-// Postgres server and Key Vault names must be globally unique.
+// Postgres server and Key Vault names must be globally unique. The server
+// name also depends on its region so a region move never collides with a
+// failed-provisioning tombstone of the old name.
 var suffix = uniqueString(resourceGroup().id)
-var pgServerName = '${prefix}-pg-${suffix}'
+var pgServerName = '${prefix}-pg-${uniqueString(resourceGroup().id, postgresLocation)}'
 var dbName = 'estimation_manager'
 
 resource logs 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
