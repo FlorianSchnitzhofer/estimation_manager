@@ -8,6 +8,12 @@
 @description('Region for all resources')
 param location string = 'germanywestcentral'
 
+// The subscription is offer-restricted for PostgreSQL Flexible Server in
+// germanywestcentral (LocationIsOfferRestricted), so the database lives in
+// the nearest unrestricted EU region — still GDPR-compliant EU residency.
+@description('Region for the PostgreSQL flexible server')
+param postgresLocation string = 'westeurope'
+
 @description('Container image for the API (e.g. ghcr.io/org/em-api:sha)')
 param apiImage string
 
@@ -67,7 +73,7 @@ resource dbPasswordSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
 
 resource postgres 'Microsoft.DBforPostgreSQL/flexibleServers@2023-12-01-preview' = {
   name: pgServerName
-  location: location
+  location: postgresLocation
   sku: { name: 'Standard_B1ms', tier: 'Burstable' }
   properties: {
     version: '16'
